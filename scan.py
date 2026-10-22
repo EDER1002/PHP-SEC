@@ -5,6 +5,8 @@ MAX_FILE = 2_000_000          # no leer archivos PHP gigantes
 SKIP_DIRS = {"vendor", "node_modules", ".git"}
 def run(cmd, cwd=None, timeout=300):
     """cmd es una LISTA (sin shell). stdin cerrado."""
+    exe = shutil.which(cmd[0])          # ruta completa: en Windows composer es un .bat
+    if exe: cmd = [exe] + list(cmd[1:])
     try:
         r = subprocess.run(cmd, shell=False, capture_output=True, text=True, cwd=cwd,
                            timeout=timeout, stdin=subprocess.DEVNULL)
@@ -41,7 +43,7 @@ def scan_grep(project):
         if SKIP_DIRS & set(php.parts): continue
         try:
             if php.is_symlink() or not php.is_file() or php.stat().st_size > MAX_FILE: continue
-            content = php.read_text(errors="ignore")
+            content = php.read_text(encoding="utf-8", errors="replace")
         except Exception: continue
         out.extend(scan_lines(content.splitlines(), str(php)))
     return out
@@ -89,6 +91,8 @@ def build_report(project, findings, extra):
     report.update(extra)
     print(json.dumps(report, indent=2, ensure_ascii=False))
 def main():
+    sys.stdout.reconfigure(encoding="utf-8")                     # misma salida en Windows, Linux y macOS
+    sys.stdin.reconfigure(encoding="utf-8", errors="replace")
     project = sys.argv[1] if len(sys.argv) > 1 else "."
     if project == "-":
         text = sys.stdin.read(MAX_FILE)

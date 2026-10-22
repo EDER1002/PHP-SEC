@@ -116,6 +116,7 @@ def scan(url):
                 "remediation": f"Bloquear /{path} en servidor"})
     return findings
 def main():
+    sys.stdout.reconfigure(encoding="utf-8")   # serve.py decodifica esta salida como UTF-8
     if len(sys.argv) < 2: print(json.dumps({"error": "uso: url-scan.py <URL>"})); sys.exit(1)
     url = sys.argv[1]
     if not valid_target(url): print(json.dumps({"error": "URL no valida: solo http/https"})); sys.exit(1)

@@ -22,9 +22,12 @@ class Site:
     def __init__(self, routes):
         class H(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
-                status, body = routes(self.path)
+                res = routes(self.path)              # (status, body) o (status, body, headers)
+                status, body = res[0], res[1]
                 data = body.encode()
                 self.send_response(status)
+                for k, v in (res[2] if len(res) > 2 else {}).items():
+                    self.send_header(k, v)
                 self.send_header("Content-Type", "text/html")
                 self.send_header("Content-Length", str(len(data)))
                 self.end_headers()
