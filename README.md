@@ -1,5 +1,7 @@
 # PHP-SEC
 
+[![tests](https://github.com/EDER1002/PHP-SEC/actions/workflows/tests.yml/badge.svg)](https://github.com/EDER1002/PHP-SEC/actions/workflows/tests.yml)
+
 Escáner de seguridad híbrido para PHP, escrito en Python usando **solo la librería estándar** (sin `pip install`).
 
 | Modo | Qué hace |
@@ -17,6 +19,20 @@ La salida es siempre un **JSON** con el mismo formato (`summary`, `total`, `find
 - Python 3.10 o superior.
 - Opcionales: `composer` (auditoría de dependencias) y `semgrep` (reglas `p/php`). Si no están, se omiten sin error.
 
+## Compatibilidad
+
+Las pruebas automáticas corren en GitHub Actions en **Linux, Windows y macOS**, con Python 3.10 y 3.13 (ver el badge de arriba).
+
+| Sistema | Línea de comandos (`scan.py`, `url-scan.py`, `php_sec.py`) | Servidor local + bookmarklet | Servicio automático |
+|---|---|---|---|
+| **Linux** | Probado (CI y uso real en Arch Linux) | Probado a mano en Firefox | systemd (`examples/php-sec.service`) |
+| **Windows** | Probado en CI (`windows-latest`) | **No probado**: `serve.py` es Python estándar y debería funcionar, pero no se ha ejecutado en Windows con Firefox | No incluido; arranca `serve.py` a mano o con el Programador de tareas |
+| **macOS** | Probado en CI (`macos-latest`) | **No probado** | No incluido |
+
+Lo que **no** cubren las pruebas automáticas en ningún sistema: `serve.py`, el bookmarklet, `semgrep` (que en Windows nativo no está soportado oficialmente; úsalo desde WSL) y Python 3.14. El script `php-sec` (bash) es solo para Linux y macOS; en Windows usa `php_sec.py`.
+
+La salida es siempre UTF-8, independientemente de la codificación del sistema (en Windows, la predeterminada suele ser cp1252).
+
 ## Instalación
 
 ```bash
@@ -31,6 +47,13 @@ mkdir -p ~/.local/bin && ln -sf "$PWD/php-sec" ~/.local/bin/php-sec
 php-sec /ruta/al/proyecto            # código fuente
 php-sec https://tu-sitio.com         # URL en vivo
 echo '<?php eval($_GET["x"]); ?>' | php-sec -   # texto por stdin
+```
+
+En cualquier sistema, incluido Windows, puedes usar el lanzador en Python (hace lo mismo que `php-sec`):
+
+```bash
+python php_sec.py /ruta/al/proyecto
+python php_sec.py https://tu-sitio.com
 ```
 
 Ejemplo de salida:
@@ -85,7 +108,7 @@ Además, `url-scan.py` solo sigue redirecciones dentro del mismo host y no admit
 python3 -m unittest discover -s tests
 ```
 
-Las pruebas levantan servidores HTTP reales en local, sin mocks, y cubren sitios soft-404, archivos reales detrás de un soft-404, la severidad de `composer.*` y casos de regresión. Cubren `url-scan.py`; el servidor y `scan.py` se probaron manualmente y siguen sin tests automáticos.
+Las pruebas levantan servidores HTTP reales en local, sin mocks, y ejecutan los scripts como subprocesos. Cubren los sitios soft-404, la severidad de `composer.*`, el texto con tildes y `ñ` bajo una codificación antigua (como la de Windows), el lanzador `php_sec.py` y la integración con `composer`. No hay tests automáticos de `serve.py` ni del bookmarklet: se probaron a mano.
 
 ## Limitaciones
 
