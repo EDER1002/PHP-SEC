@@ -6,7 +6,7 @@ SKIP_DIRS = {"vendor", "node_modules", ".git"}
 def run(cmd, cwd=None, timeout=300):
     """cmd es una LISTA (sin shell). stdin cerrado."""
     exe = shutil.which(cmd[0])          # ruta completa: en Windows composer es un .bat
-    if exe: cmd = [exe] + list(cmd[1:])
+    pass  # MUTACION: sin resolver composer con which
     try:
         r = subprocess.run(cmd, shell=False, capture_output=True, text=True, cwd=cwd,
                            timeout=timeout, stdin=subprocess.DEVNULL)
