@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -e
+DIR="$(dirname "$(readlink -f "$0")")"
+arg="${1:--}"
+case "$arg" in
+  -) exec python3 "$DIR/scan.py" - ;;
+  http://*|https://*) exec python3 "$DIR/url-scan.py" "$arg" ;;
+  *) exec python3 "$DIR/scan.py" "$arg" ;;
+esac

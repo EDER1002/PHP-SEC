@@ -1,0 +1,10 @@
+# Ejemplo: ~/.config/systemd/user/php-sec.service  (ajusta la ruta de ExecStart)
+[Unit]
+Description=php-sec Firefox integration server
+
+[Service]
+ExecStart=/usr/bin/python3 %h/PHP-SEC/serve.py
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
